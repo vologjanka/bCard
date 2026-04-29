@@ -7,8 +7,10 @@ function App() {
   return (
     <main className="page">
       <FullName />
-      <ProfilePhoto />
-      <AboutMe />
+      <section className="content-row">
+        <ProfilePhoto />
+        <AboutMe />
+      </section>
     </main>
   )
 }
