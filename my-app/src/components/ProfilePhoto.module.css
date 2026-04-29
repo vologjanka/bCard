@@ -1,0 +1,17 @@
+.photoCard {
+  width: fit-content;
+  max-width: 100%;
+  text-align: center;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px 20px;
+  border: 2px solid #d8b4fe;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.08);
+}
+
+.photo {
+  display: block;
+  width: min(100%, 420px);
+  height: auto;
+  border-radius: 12px;
+}

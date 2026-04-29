@@ -1,10 +1,14 @@
 import './App.css'
+import AboutMe from './components/AboutMe'
+import FullName from './components/FullName'
+import ProfilePhoto from './components/ProfilePhoto'
 
 function App() {
   return (
     <main className="page">
-      <h1>My Photo</h1>
-      <img className="photo" src="/myfoto.jpg" alt="My photo" />
+      <FullName />
+      <ProfilePhoto />
+      <AboutMe />
     </main>
   )
 }

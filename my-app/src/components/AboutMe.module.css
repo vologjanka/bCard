@@ -1,0 +1,17 @@
+.aboutMe {
+  width: min(100%, 640px);
+  text-align: center;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px 20px;
+  border: 2px solid #d8b4fe;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.08);
+}
+
+.heading {
+  margin: 0 0 8px;
+}
+
+.text {
+  margin: 6px 0;
+}
