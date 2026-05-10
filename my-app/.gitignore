@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Secrets (Web3Forms и др.) — не коммитить
+.env
+.env.local
+.env.*.local
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

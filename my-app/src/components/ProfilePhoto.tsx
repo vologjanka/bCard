@@ -1,3 +1,8 @@
+/**
+ * Карточка с фотографией профиля. Файл лежит в public/myfoto.jpg.
+ * Путь собирается через import.meta.env.BASE_URL — так изображение корректно
+ * открывается и при локальной разработке, и после деплоя на GitHub Pages (base './').
+ */
 import styles from './ProfilePhoto.module.css'
 
 function ProfilePhoto() {
