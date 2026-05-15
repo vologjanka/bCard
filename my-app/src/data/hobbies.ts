@@ -21,8 +21,8 @@ export type Hobby = {
 export const hobbies: Hobby[] = [
   {
     id: 'hobby-1',
-    title: 'Чтение',
-    image1: 'hobbies/reading-1.svg',
+    title: 'Чтение и музыка',
+    image1: 'hobbies/gitara.jpg',
     image2: 'hobbies/reading-2.svg',
     alt1: 'Книги и чтение в уютной атмосфере',
     alt2: 'Открытая книга как символ чтения',
@@ -30,16 +30,16 @@ export const hobbies: Hobby[] = [
   {
     id: 'hobby-2',
     title: 'Путешествия',
-    image1: 'hobbies/travel-1.svg',
-    image2: 'hobbies/travel-2.svg',
+    image1: 'hobbies/kazan.jpg',
+    image2: 'hobbies/kazan2.jpg',
     alt1: 'Горы и маршруты для путешествий',
     alt2: 'Пейзаж как символ поездок и открытий',
   },
   {
     id: 'hobby-3',
     title: 'Фотография',
-    image1: 'hobbies/photo-1.svg',
-    image2: 'hobbies/photo-2.svg',
+    image1: 'hobbies/foto1.jpg',
+    image2: 'hobbies/foto2.jpg',
     alt1: 'Камера и кадр как хобби фотография',
     alt2: 'Горный кадр как сюжет для фотосъемки',
   },

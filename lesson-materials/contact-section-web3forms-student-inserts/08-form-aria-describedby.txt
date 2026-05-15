@@ -1,0 +1,24 @@
+================================================================================
+ВСТАВКА 08 — развернуть тег <form> и добавить aria-describedby
+================================================================================
+
+ГДЕ: строка с <form className={styles.formCard} onSubmit={handleSubmit} noValidate>
+
+ЧТО СДЕЛАТЬ: ЗАМЕНИТЕ одну строку <form ...> на многострочный вариант ниже.
+
+ЗА ЧТО ОТВЕЧАЕТ: когда есть submitError, у формы появляется aria-describedby
+на абзац с id="contact-submit-error" — лучше для доступности.
+
+
+----- ЗАМЕНИТЕ СТАРУЮ СТРОКУ form НА ЭТОТ БЛОК -----
+
+      <form
+        className={styles.formCard}
+        onSubmit={handleSubmit}
+        noValidate
+        aria-describedby={submitError ? 'contact-submit-error' : undefined}
+      >
+
+----- КОНЕЦ -----
+
+ВАЖНО: закрывающий </form> не дублируйте — он уже есть ниже по файлу.

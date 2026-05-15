@@ -152,6 +152,16 @@
   transform: translateY(1px);
 }
 
+.submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.submit:disabled:hover {
+  background: #6ea8ff;
+}
+
 @media (max-width: 900px) {
   .section {
     padding-bottom: 36px;

@@ -1,0 +1,31 @@
+================================================================================
+ПОРЯДОК ФАЙЛОВ ДЛЯ САМОСТОЯТЕЛЬНОЙ СБОРКИ (скопировать на компьютеры ученикам)
+================================================================================
+
+Папка: lesson-materials/contact-section-web3forms-student-inserts/
+
+1. Прочитайте сначала:  KONSPET-urok6-Web3Forms-ContactSection.txt
+
+2. Вставки по шагам (не перепрыгивайте номера):
+
+   00-shapka-urok6-stroka.txt
+   01-constant-WEB3FORMS_SUBMIT_URL.txt
+   02-state-isSubmitting-submitError.txt
+   03-handleSubmit-async-i-sbros-submitError.txt
+   04-handleSubmit-web3forms-posle-validacii.txt
+   05-tekst-lead-paragraph.txt
+   06-tekst-success-blok.txt
+   07-blok-submitError-JSX.txt
+   08-form-aria-describedby.txt
+   09-input-i-textarea-disabled.txt
+   10-knopka-submit.txt
+
+3. Помимо ContactSection.tsx у преподавателя должны быть:
+   • my-app/.env (с ключом, не для копирования в git)
+   • my-app/.env.example
+   • my-app/src/vite-env.d.ts
+   • стили .submit:disabled в ContactSection.module.css (отдельный мини-урок)
+
+После вставок: в папке my-app выполнить npm run build
+
+================================================================================

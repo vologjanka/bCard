@@ -1,0 +1,94 @@
+================================================================================
+ВСТАВКА 04 — вместо «мгновенного успеха» — ключ, fetch, try/catch/finally
+================================================================================
+
+ГДЕ: в handleSubmit ПОСЛЕ блока:
+
+    if (hasError) {
+      setIsSuccess(false)
+      return
+    }
+
+ЧТО СДЕЛАТЬ: УДАЛИТЕ старые строки «мгновенного успеха», которые выглядели так:
+
+    setIsSuccess(true)
+    setName('')
+    setEmail('')
+    setMessage('')
+    setErrors(initialErrors)
+
+     и ВМЕСТО НИХ ВСТАВЬТЕ весь блок ниже от комментария «Ключ из .env»
+     до закрывающей скобки finally (включительно).
+
+ЗА ЧТО ОТВЕЧАЕТ БЛОК:
+• Читает ключ VITE_WEB3FORMS_ACCESS_KEY из .env через import.meta.env.
+• Если ключа нет — понятное сообщение пользователю.
+• Отправляет POST на Web3Forms с полями письма.
+• Обрабатывает ответ и ошибки сети; в finally снимает «отправка идёт».
+
+
+----- СКОПИРУЙТЕ ВЕСЬ БЛОК НИЖЕ (с отступами как в проекте: 4 пробела) -----
+
+    // [УЧЕБА: Урок 6] Ключ из .env (Vite подставляет при сборке/в dev). Без ключа запрос бессмыслен.
+    const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY?.trim()
+    if (!accessKey) {
+      setSubmitError(
+        'Не настроен ключ Web3Forms. В папке my-app создайте файл .env с одной строкой VITE_WEB3FORMS_ACCESS_KEY=ваш_ключ и перезапустите npm run dev.',
+      )
+      return
+    }
+
+    // [УЧЕБА: Урок 6] Пока идёт отправка — скрываем прошлый «успех», чтобы не вводить в заблуждение.
+    setIsSuccess(false)
+
+    setIsSubmitting(true)
+    try {
+      // [УЧЕБА: Урок 6] Тело JSON: имена полей по документации Web3Forms (access_key, subject, name, email, message).
+      const response = await fetch(WEB3FORMS_SUBMIT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          access_key: accessKey,
+          subject: 'Сообщение с визитки (bCard)',
+          name: name.trim(),
+          email: email.trim(),
+          message: message.trim(),
+        }),
+      })
+
+      let data: { success?: boolean; message?: string } = {}
+      try {
+        data = (await response.json()) as { success?: boolean; message?: string }
+      } catch {
+        /* ответ не JSON — оставим data пустым */
+      }
+
+      if (!response.ok) {
+        setSubmitError(data.message || `Ошибка сервера (${response.status}). Попробуйте позже.`)
+        return
+      }
+
+      if (!data.success) {
+        setSubmitError(data.message || 'Не удалось отправить сообщение. Попробуйте позже.')
+        return
+      }
+
+      // [УЧЕБА: ШАБЛОН] Успех: письмо принял сервис — показываем благодарность и очищаем поля.
+      setIsSuccess(true)
+      setName('')
+      setEmail('')
+      setMessage('')
+      setErrors(initialErrors)
+    } catch {
+      setSubmitError('Нет связи с интернетом или сервис недоступен. Попробуйте позже.')
+    } finally {
+      setIsSubmitting(false)
+    }
+
+----- КОНЕЦ -----
+
+ПРОВЕРКА: перед этой вставкой у вас уже должны быть константа WEB3FORMS_SUBMIT_URL,
+состояния isSubmitting/submitError и async + setSubmitError('') после preventDefault.

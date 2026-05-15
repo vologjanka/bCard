@@ -25,7 +25,7 @@
  *   • текст на кнопке, текст в блоке успеха (сохраняя смысл для пользователя)
  *   • классы из module.css уже подключены — цвета/отступы править в .module.css
  *
- * [УЧЕБА: ПРОДВИНУТЫЕ] — отправка на почту (Web3Forms, Formspree…), новые поля формы.
+ * [УЧЕБА: Урок 6] — отправка на почту через Web3Forms (fetch + ключ в .env).
  * ---------------------------------------------------------------------------
  */
 
@@ -50,6 +50,9 @@ type FormErrors = {
 // [УЧЕБА: ШАБЛОН] Стартовое состояние — без ошибок; копируем в handleSubmit перед проверками.
 const initialErrors: FormErrors = { name: '', email: '', message: '' }
 
+/** [УЧЕБА: Урок 6] Адрес API Web3Forms — менять только если сервис сменит URL в документации. */
+const WEB3FORMS_SUBMIT_URL = 'https://api.web3forms.com/submit'
+
 /**
  * [УЧЕБА: ШАБЛОН] Простая проверка формата email.
  * trim() убирает пробелы по краям — «   » не считается за заполненное поле.
@@ -69,16 +72,25 @@ function ContactSection() {
   // [УЧЕБА: ШАБЛОН] То же число ключей, что и полей; пустая строка = «ошибки нет» для этого поля.
   const [errors, setErrors] = useState<FormErrors>(initialErrors)
 
-  /** [УЧЕБА: ШАБЛОН] Показывать зелёный блок после успешной проверки (без реальной отправки на сервер в этом примере). */
+  /** [УЧЕБА: ШАБЛОН] Зелёный блок после успешной отправки в Web3Forms. */
   const [isSuccess, setIsSuccess] = useState(false)
 
+  /** [УЧЕБА: Урок 6] true = ждём ответ API; кнопку блокируем, чтобы не отправить дважды. */
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  /** [УЧЕБА: Урок 6] Текст ошибки сети / сервиса (не путать с errors — это про поля формы). */
+  const [submitError, setSubmitError] = useState('')
+
   /**
-   * [УЧЕБА: ШАБЛОН]
-   * Обработчик отправки: сначала проверки, потом очистка полей или выход при ошибках.
+   * [УЧЕБА: ШАБЛОН] Локальная валидация полей.
+   * [УЧЕБА: Урок 6] После успешной валидации — POST на Web3Forms, затем очистка полей или сообщение об ошибке.
    */
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     // [УЧЕБА: ШАБЛОН] Иначе браузер перезагрузит страницу и React «обнулится».
     event.preventDefault()
+
+    // [УЧЕБА: Урок 6] Новая попытка — стираем старое сообщение про сеть/API.
+    setSubmitError('')
 
     // [УЧЕБА: ШАБЛОН] Новый объект ошибок от «чистого» шаблона; дальше заполним только нужные ключи.
     const next: FormErrors = { ...initialErrors }
@@ -110,12 +122,64 @@ function ContactSection() {
       return // [УЧЕБА: ШАБЛОН] Не очищаем поля при ошибке — пользователь видит, что исправить.
     }
 
-    // [УЧЕБА: ШАБЛОН] Цепочка «успех»: флаг + сброс полей + сброс ошибок (нет fetch — см. ПРОДВИНУТЫЕ в шапке).
-    setIsSuccess(true)
-    setName('') // [УЧЕБА: ШАБЛОН] Очистка контролируемых полей.
-    setEmail('')
-    setMessage('')
-    setErrors(initialErrors) // [УЧЕБА: ШАБЛОН] Убрать старые сообщения после «отправки».
+    // [УЧЕБА: Урок 6] Ключ из .env (Vite подставляет при сборке/в dev). Без ключа запрос бессмыслен.
+    const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY?.trim()
+    if (!accessKey) {
+      setSubmitError(
+        'Не настроен ключ Web3Forms. В папке my-app создайте файл .env с одной строкой VITE_WEB3FORMS_ACCESS_KEY=ваш_ключ и перезапустите npm run dev.',
+      )
+      return
+    }
+
+    // [УЧЕБА: Урок 6] Пока идёт отправка — скрываем прошлый «успех», чтобы не вводить в заблуждение.
+    setIsSuccess(false)
+
+    setIsSubmitting(true)
+    try {
+      // [УЧЕБА: Урок 6] Тело JSON: имена полей по документации Web3Forms (access_key, subject, name, email, message).
+      const response = await fetch(WEB3FORMS_SUBMIT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          access_key: accessKey,
+          subject: 'Сообщение с визитки (bCard)',
+          name: name.trim(),
+          email: email.trim(),
+          message: message.trim(),
+        }),
+      })
+
+      let data: { success?: boolean; message?: string } = {}
+      try {
+        data = (await response.json()) as { success?: boolean; message?: string }
+      } catch {
+        /* ответ не JSON — оставим data пустым */
+      }
+
+      if (!response.ok) {
+        setSubmitError(data.message || `Ошибка сервера (${response.status}). Попробуйте позже.`)
+        return
+      }
+
+      if (!data.success) {
+        setSubmitError(data.message || 'Не удалось отправить сообщение. Попробуйте позже.')
+        return
+      }
+
+      // [УЧЕБА: ШАБЛОН] Успех: письмо принял сервис — показываем благодарность и очищаем поля.
+      setIsSuccess(true)
+      setName('')
+      setEmail('')
+      setMessage('')
+      setErrors(initialErrors)
+    } catch {
+      setSubmitError('Нет связи с интернетом или сервис недоступен. Попробуйте позже.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   /*
@@ -141,7 +205,7 @@ function ContactSection() {
       </h2>
       {/* [УЧЕБА: СВОЁ] className={styles.lead} и весь абзац */}
       <p className={styles.lead}>
-        Заполните форму — после валидации показываем успех без реальной отправки на сервер (урок в классе).
+        Заполните форму: после проверки полей сообщение отправляется на почту через сервис Web3Forms.
       </p>
 
       {/*
@@ -151,8 +215,18 @@ function ContactSection() {
       */}
       {isSuccess ? (
         <div className={styles.success} role="status" aria-live="polite">
-          Спасибо! Сообщение принято (учебная демонстрация).
+          Спасибо! Сообщение отправлено — проверьте почту, указанную при создании ключа Web3Forms (в т.ч. папку
+          «Спам»).
         </div>
+      ) : null}
+
+      {/*
+        [УЧЕБА: Урок 6] Ошибка сети / API — не то же самое, что красные подсказки под полями (errors.*).
+      */}
+      {submitError ? (
+        <p id="contact-submit-error" className={styles.errorText} role="alert">
+          {submitError}
+        </p>
       ) : null}
 
       {/*
@@ -160,7 +234,12 @@ function ContactSection() {
         [УЧЕБА: ШАБЛОН] noValidate — отключаем нативные подсказки браузера, показываем только errors из state.
         [УЧЕБА: СВОЁ] className={styles.formCard} — вид карточки в .module.css.
       */}
-      <form className={styles.formCard} onSubmit={handleSubmit} noValidate>
+      <form
+        className={styles.formCard}
+        onSubmit={handleSubmit}
+        noValidate
+        aria-describedby={submitError ? 'contact-submit-error' : undefined}
+      >
         {/*
           Поле «Имя»:
           [УЧЕБА: ШАБЛОН] htmlFor на label === id на input; иначе клик по подписи не фокусирует поле.
@@ -184,6 +263,7 @@ function ContactSection() {
             type="text"
             name="name"
             autoComplete="name"
+            disabled={isSubmitting}
             value={name}
             onChange={(e) => {
               setName(e.target.value)
@@ -220,6 +300,7 @@ function ContactSection() {
             type="email"
             name="email"
             autoComplete="email"
+            disabled={isSubmitting}
             value={email}
             onChange={(e) => {
               setEmail(e.target.value)
@@ -251,6 +332,7 @@ function ContactSection() {
             className={errors.message ? styles.textareaError : styles.textarea}
             name="message"
             rows={5}
+            disabled={isSubmitting}
             value={message}
             onChange={(e) => {
               setMessage(e.target.value)
@@ -272,8 +354,8 @@ function ContactSection() {
           [УЧЕБА: ШАБЛОН] type="submit" — отправка именно этой формы по Enter и по клику.
           [УЧЕБА: СВОЁ] Текст внутри кнопки и className={styles.submit} (.module.css).
         */}
-        <button type="submit" className={styles.submit}>
-          Отправить
+        <button type="submit" className={styles.submit} disabled={isSubmitting} aria-busy={isSubmitting}>
+          {isSubmitting ? 'Отправляем…' : 'Отправить'}
         </button>
       </form>
     </section>
